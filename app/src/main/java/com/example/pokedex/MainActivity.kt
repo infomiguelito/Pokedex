@@ -25,11 +25,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PokedexTheme {
-                var Pokemon by remember {
-                    mutableStateOf<List<PokeDto>>(emptyList())
-                }
+                var pokemonList by remember { mutableStateOf<List<PokeDto>>(emptyList()) }
+                var isLoading by remember { mutableStateOf(true) }
                 val apiSevice = RetrofitClient.retrofitInstance.create(ApiService::class.java)
-                val callPokemon = apiSevice.getPokemon("pikachu")
+                val callPokemon = apiSevice.getPokemonList()
 
 
                 callPokemon.enqueue(object : Callback<PokeResponse> {
@@ -39,16 +38,18 @@ class MainActivity : ComponentActivity() {
                     ) {
                         if (response.isSuccessful) {
                             val pokedex = response.body()?.results
-                            if (pokedex != null){
-                                Pokemon = pokedex
+                            if (pokedex != null) {
+                                pokemonList = pokedex
                             }
                         } else {
                             Log.d("MainActivity", "Request Error :: ${response.errorBody()}")
                         }
+                        isLoading = false
                     }
 
                     override fun onFailure(call: Call<PokeResponse>, t: Throwable) {
                         Log.d("MainActivity", "Network Error :: ${t.message}")
+                        isLoading = false
                     }
 
                 })
@@ -57,12 +58,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LazyColumn {
-                        items(Pokemon){
-                            Text(text = it.name)
+                    if (isLoading) {
+                        Text(text = "Loading Pokémon list...")
+                    } else if (pokemonList.isEmpty()) {
+                        Text(text = "No Pokémon found")
+                    } else {
+                        LazyColumn {
+                            items(pokemonList) { pokemon ->
+                                Text(text = pokemon.name)
+                            }
                         }
-                    }
 
+                    }
                 }
             }
         }

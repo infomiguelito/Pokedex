@@ -11,6 +11,4 @@ object RetrofitClient {
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-
-    val api : ApiService = retrofitInstance.create(ApiService::class.java)
 }
