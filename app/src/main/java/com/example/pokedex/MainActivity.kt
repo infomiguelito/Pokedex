@@ -51,53 +51,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PokedexTheme {
-                var pokemonList by remember { mutableStateOf<List<PokeDto>>(emptyList()) }
-                var isLoading by remember { mutableStateOf(true) }
-                val apiSevice = RetrofitClient.retrofitInstance.create(ApiService::class.java)
-                val callPokemon = apiSevice.getPokemonList()
-
-
-                callPokemon.enqueue(object : Callback<PokeResponse> {
-                    override fun onResponse(
-                        call: Call<PokeResponse>,
-                        response: Response<PokeResponse>
-                    ) {
-                        if (response.isSuccessful) {
-                            val pokedex = response.body()?.results
-                            if (pokedex != null) {
-                                pokemonList = pokedex
-                            }
-                        } else {
-                            Log.d("MainActivity", "Request Error :: ${response.errorBody()}")
-                        }
-                        isLoading = false
-                    }
-
-                    override fun onFailure(call: Call<PokeResponse>, t: Throwable) {
-                        Log.d("MainActivity", "Network Error :: ${t.message}")
-                        isLoading = false
-                    }
-
-                })
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator()
-                        } else {
-                            PokeGrid(
-                                pokemonList
-                            ){pokeClicked ->
-
-                            }
-                        }
-                    }
+                    PokeApp()
 
                 }
 
@@ -107,62 +66,3 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@Composable
-fun PokeCard(pokeDto: PokeDto,
-             onCLick: (PokeDto) -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable { },
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            AsyncImage(
-                model = pokeDto.frontFullDefault,
-                contentDescription = pokeDto.name,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-            )
-
-            Text(
-                text = pokeDto.name.capitalize(),
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-
-            Button(
-                onClick = { /* Abre detalhes do Pokémon */ },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Ver Detalhes")
-            }
-        }
-    }
-}
-
-@Composable
-fun PokeGrid(pokeList: List<PokeDto>,
-             onCLick: (PokeDto) -> Unit) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier.padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(pokeList) { poke ->
-            PokeCard(
-                poke,
-                onCLick = onCLick
-            )
-        }
-    }
-}
