@@ -12,6 +12,6 @@ interface ApiService {
     fun getPokemonList(@Query("limit") limit: Int = 20): Call<PokeResponse>
 
     @GET("pokemon/{id}")
-    suspend fun getPokemonDetails(@Path("id") id: Int): Response<PokemonDetail>
+    suspend fun getPokemonDetails(@Path("id") id: Int): Response<PokeDto>
 
 }

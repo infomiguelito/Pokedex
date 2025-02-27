@@ -68,7 +68,7 @@ fun PokeListScreen(navController: NavHostController) {
     PokeListContent(
         pokemonList = pokemonList
     ) { itemClicked ->
-        navController.navigate(route = "pokeDetail")
+        navController.navigate(route = "pokeDetail/${itemClicked.id}")
 
     }
 }
