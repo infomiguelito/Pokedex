@@ -124,7 +124,7 @@ private fun PokeCard(
             )
 
             Button(
-                onClick = { },
+                onClick = {onCLick(pokeDto)},
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Ver Detalhes")
