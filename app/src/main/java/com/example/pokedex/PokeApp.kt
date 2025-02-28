@@ -21,7 +21,7 @@ fun PokeApp() {
             })
         ) { backStackEntry ->
             val pokeId =  requireNotNull( backStackEntry.arguments?.getString("itemId"))
-            PokeDetailScreen(pokeId)
+            PokeDetailScreen(pokeId, navController)
         }
     }
 }
