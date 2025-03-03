@@ -98,6 +98,7 @@ private fun PokeCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .height(180.dp)
             .clip(RoundedCornerShape(16.dp))
             .clickable { },
         elevation = CardDefaults.cardElevation(4.dp)
@@ -107,7 +108,7 @@ private fun PokeCard(
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
             AsyncImage(
                 model = pokeDto.frontFullDefault,
@@ -123,10 +124,9 @@ private fun PokeCard(
                 fontSize = 18.sp
             )
 
-
             Button(
                 onClick = {onCLick(pokeDto)},
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(0.8f)
             ) {
                 Text(text = "Details")
             }
