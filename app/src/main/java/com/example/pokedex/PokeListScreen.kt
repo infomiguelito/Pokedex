@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -97,7 +98,6 @@ private fun PokeCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
             .clip(RoundedCornerShape(16.dp))
             .clickable { },
         elevation = CardDefaults.cardElevation(4.dp)
@@ -105,9 +105,9 @@ private fun PokeCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.Center
         ) {
             AsyncImage(
                 model = pokeDto.frontFullDefault,
@@ -123,11 +123,12 @@ private fun PokeCard(
                 fontSize = 18.sp
             )
 
+
             Button(
                 onClick = {onCLick(pokeDto)},
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Ver Detalhes")
+                Text(text = "Details")
             }
         }
     }

@@ -93,7 +93,7 @@ private fun PokeDetailContent(poke: PokeDto) {
     ) {
 
         AsyncImage(
-            model = poke.frontFullDefault,
+            model = poke.sprites.front_default,
             contentDescription = poke.name,
             modifier = Modifier
                 .size(200.dp)
@@ -118,7 +118,7 @@ private fun PokeDetailContent(poke: PokeDto) {
         }
 
         Text(
-            text = "Altura: ${poke.height / 10.0}m | Peso: ${poke.weight / 10.0}kg",
+            text = "Height: ${poke.height / 10.0}m | Weight: ${poke.weight / 10.0}kg",
             fontSize = 16.sp,
             modifier = Modifier.padding(top = 8.dp)
         )
