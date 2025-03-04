@@ -90,11 +90,12 @@ private fun PokeDetailContent(poke: PokeDto) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+
         AsyncImage(
             model = poke.sprites.front_default,
             contentDescription = poke.name,
             modifier = Modifier
-                .size(200.dp)
+                .size(250.dp)
                 .clip(CircleShape)
                 .background(Color.LightGray)
         )
