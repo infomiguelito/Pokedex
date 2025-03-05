@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,12 +42,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.pokedex.detail.presentation.PokeDetailViewModel
+import com.example.pokedex.list.presentation.PokeListViewModel
 import com.example.pokedex.ui.theme.PokedexTheme
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
+
+    private val listViewModel by viewModels<PokeListViewModel> {PokeListViewModel.Factory}
+    private val detailViewModel by viewModels<PokeDetailViewModel> {PokeDetailViewModel.Factory}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -56,7 +63,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    PokeApp()
+                    PokeApp(
+                        listViewModel = listViewModel,
+                        detailViewModel = detailViewModel
+                    )
 
                 }
 

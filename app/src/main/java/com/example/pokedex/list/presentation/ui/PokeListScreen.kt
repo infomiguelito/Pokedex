@@ -20,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,42 +33,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.pokedex.ApiService
 import com.example.pokedex.common.model.PokeDto
 import com.example.pokedex.common.model.PokeResponse
 import com.example.pokedex.common.data.RetrofitClient
+import com.example.pokedex.list.presentation.PokeListViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 @Composable
-fun PokeListScreen(navController: NavHostController) {
+fun PokeListScreen(
+    navController: NavHostController,
+    viewModel: PokeListViewModel
+) {
 
-    var pokemonList by remember { mutableStateOf<List<PokeDto>>(emptyList()) }
-    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
-    val callPokemon = apiService.getPokemonList()
-
-
-    callPokemon.enqueue(object : Callback<PokeResponse> {
-        override fun onResponse(
-            call: Call<PokeResponse>,
-            response: Response<PokeResponse>
-        ) {
-            if (response.isSuccessful) {
-                val pokedex = response.body()?.results
-                if (pokedex != null) {
-                    pokemonList = pokedex
-                }
-            } else {
-                Log.d("MainActivity", "Request Error :: ${response.errorBody()}")
-            }
-        }
-
-        override fun onFailure(call: Call<PokeResponse>, t: Throwable) {
-            Log.d("MainActivity", "Network Error :: ${t.message}")
-        }
-
-    })
+    val pokemonList by viewModel.pokemonList.collectAsState()
 
     PokeListContent(
         pokemonList = pokemonList
@@ -128,7 +108,7 @@ private fun PokeCard(
             )
 
             Button(
-                onClick = {onCLick(pokeDto)},
+                onClick = { onCLick(pokeDto) },
                 modifier = Modifier.fillMaxWidth(0.8f)
             ) {
                 Text(text = "Details")

@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,9 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.pokedex.ApiService
 import com.example.pokedex.common.model.PokeDto
 import com.example.pokedex.common.data.RetrofitClient
+import com.example.pokedex.detail.presentation.PokeDetailViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,33 +45,18 @@ import retrofit2.Response
 @Composable
 fun PokeDetailScreen(
     pokeId: String,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    detailViewModel: PokeDetailViewModel
 ) {
-    var pokeDto by remember { mutableStateOf<PokeDto?>(null) }
-
-    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
-
-    apiService.getPokemonDetails(pokeId).enqueue(
-        object : Callback<PokeDto> {
-            override fun onResponse(call: Call<PokeDto>, response: Response<PokeDto>) {
-                if (response.isSuccessful) {
-                    pokeDto = response.body()
-                } else {
-                    Log.d("MainActivity", "Request Error :: ${response.errorBody()}")
-                }
-            }
-
-            override fun onFailure(call: Call<PokeDto>, t: Throwable) {
-                Log.d("MainActivity", "Network Error :: ${t.message}")
-            }
-        }
-    )
+    val pokeDto by detailViewModel.pokemonDetail.collectAsState()
+    detailViewModel.fetchPokemonDetail(pokeId)
 
     Box(modifier = Modifier.fillMaxSize()) {
         pokeDto?.let {
 
             IconButton(
                 onClick = {
+                    detailViewModel.cleanPokeId()
                     navHostController.popBackStack()
                 }) {
                 Image(

@@ -1,7 +1,9 @@
 package com.example.pokedex.common.model
 
+import kotlinx.coroutines.flow.MutableStateFlow
 
-data class PokeDto(
+
+ data class PokeDto(
     val name: String,
     val url: String?,
     val height: Int,
@@ -10,7 +12,7 @@ data class PokeDto(
     val stats: List<StatSlot>,
     val sprites: Sprites
 
-){
+)  {
     val id : String
         get() = url?.split("/")?.dropLast(1)?.lastOrNull() ?: "0"
 

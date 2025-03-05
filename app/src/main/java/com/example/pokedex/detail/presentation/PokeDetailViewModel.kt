@@ -1,4 +1,66 @@
 package com.example.pokedex.detail.presentation
 
-class PokeDetailViewModel {
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.pokedex.common.data.RetrofitClient
+import com.example.pokedex.common.model.PokeDto
+import com.example.pokedex.detail.data.PokeDetailService
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
+class PokeDetailViewModel(
+    private val pokeDetailService: PokeDetailService
+): ViewModel() {
+
+    private val _getPokemonDetail = MutableStateFlow<PokeDto?>(null)
+    val pokemonDetail: StateFlow<PokeDto?> = _getPokemonDetail
+
+    fun fetchPokemonDetail(pokeId: String){
+        if (_getPokemonDetail.value == null){
+            pokeDetailService.getPokemonDetails(pokeId).enqueue(
+                object : Callback<PokeDto> {
+                    override fun onResponse(call: Call<PokeDto>, response: Response<PokeDto>) {
+                        if (response.isSuccessful) {
+                            _getPokemonDetail.value = response.body()
+                        } else {
+                            Log.d("PokeDetailViewModel", "Request Error :: ${response.errorBody()}")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<PokeDto>, t: Throwable) {
+                        Log.d("PokeDetailViewModel", "Network Error :: ${t.message}")
+                    }
+                }
+            )
+        }
+    }
+
+    fun cleanPokeId(){
+        viewModelScope.launch {
+            delay(1000)
+            _getPokemonDetail.value = null
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+                val detailService =
+                    RetrofitClient.retrofitInstance.create(PokeDetailService::class.java)
+                return PokeDetailViewModel(
+                    detailService
+                ) as T
+            }
+        }
+    }
+
 }
