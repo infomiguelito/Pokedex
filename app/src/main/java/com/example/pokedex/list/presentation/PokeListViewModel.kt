@@ -3,13 +3,16 @@ package com.example.pokedex.list.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.pokedex.common.data.RetrofitClient
 import com.example.pokedex.common.model.PokeDto
 import com.example.pokedex.common.model.PokeResponse
 import com.example.pokedex.list.data.PokeListService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -25,26 +28,18 @@ class PokeListViewModel(
         fetchPokemonList()
     }
 
-    private fun fetchPokemonList(){
-        pokeListService.getPokemonList().enqueue(object : Callback<PokeResponse> {
-            override fun onResponse(
-                call: Call<PokeResponse>,
-                response: Response<PokeResponse>
-            ) {
-                if (response.isSuccessful) {
-                    val pokedex = response.body()?.results
-                    if (pokedex != null) {
-                        getPokemonList.value = pokedex
-                    }
-                } else {
-                    Log.d("PokeListViewModel", "Request Error :: ${response.errorBody()}")
+    private fun fetchPokemonList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = pokeListService.getPokemonList()
+            if (response.isSuccessful) {
+                val pokedex = response.body()?.results
+                if (pokedex != null) {
+                    getPokemonList.value = pokedex
                 }
+            } else {
+                Log.d("PokeListViewModel", "Request Error :: ${response.errorBody()}")
             }
-
-            override fun onFailure(call: Call<PokeResponse>, t: Throwable) {
-                Log.d("PokeListViewModel", "Network Error :: ${t.message}")
-            }
-        })
+        }
     }
 
     companion object {

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.pokedex.common.data.RetrofitClient
 import com.example.pokedex.common.model.PokeDto
 import com.example.pokedex.detail.data.PokeDetailService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,32 +19,25 @@ import retrofit2.Response
 
 class PokeDetailViewModel(
     private val pokeDetailService: PokeDetailService
-): ViewModel() {
+) : ViewModel() {
 
     private val _getPokemonDetail = MutableStateFlow<PokeDto?>(null)
     val pokemonDetail: StateFlow<PokeDto?> = _getPokemonDetail
 
-    fun fetchPokemonDetail(pokeId: String){
-        if (_getPokemonDetail.value == null){
-            pokeDetailService.getPokemonDetails(pokeId).enqueue(
-                object : Callback<PokeDto> {
-                    override fun onResponse(call: Call<PokeDto>, response: Response<PokeDto>) {
-                        if (response.isSuccessful) {
-                            _getPokemonDetail.value = response.body()
-                        } else {
-                            Log.d("PokeDetailViewModel", "Request Error :: ${response.errorBody()}")
-                        }
-                    }
-
-                    override fun onFailure(call: Call<PokeDto>, t: Throwable) {
-                        Log.d("PokeDetailViewModel", "Network Error :: ${t.message}")
-                    }
+    fun fetchPokemonDetail(pokeId: String) {
+        if (_getPokemonDetail.value == null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val response = pokeDetailService.getPokemonDetails(pokeId)
+                if (response.isSuccessful) {
+                    _getPokemonDetail.value = response.body()
+                } else {
+                    Log.d("PokeDetailViewModel", "Request Error :: ${response.errorBody()}")
                 }
-            )
+            }
         }
     }
 
-    fun cleanPokeId(){
+    fun cleanPokeId() {
         viewModelScope.launch {
             delay(1000)
             _getPokemonDetail.value = null
@@ -62,5 +56,4 @@ class PokeDetailViewModel(
             }
         }
     }
-
 }
