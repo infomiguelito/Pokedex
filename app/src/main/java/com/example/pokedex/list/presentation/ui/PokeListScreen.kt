@@ -59,8 +59,8 @@ fun PokeListScreen(
 
 @Composable
 private fun PokeListContent(
-    pokemonList: List<PokeDto>,
-    onClick: (PokeDto) -> Unit
+    pokemonList: PokeListUiState,
+    onClick: (PokeUiData) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -75,8 +75,8 @@ private fun PokeListContent(
 
 @Composable
 private fun PokeCard(
-    pokeDto: PokeDto,
-    onCLick: (PokeDto) -> Unit
+    pokeDto: PokeUiData,
+    onCLick: (PokeUiData) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -94,7 +94,7 @@ private fun PokeCard(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             AsyncImage(
-                model = pokeDto.frontFullDefault,
+                model = pokeDto.image,
                 contentDescription = pokeDto.name,
                 modifier = Modifier
                     .size(80.dp)
@@ -119,8 +119,8 @@ private fun PokeCard(
 
 @Composable
 private fun PokeGrid(
-    pokeList: List<PokeDto>,
-    onCLick: (PokeDto) -> Unit
+    pokeList: List<PokeUiData>,
+    onCLick: (PokeUiData) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),

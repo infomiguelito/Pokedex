@@ -9,6 +9,8 @@ import com.example.pokedex.common.data.RetrofitClient
 import com.example.pokedex.common.model.PokeDto
 import com.example.pokedex.common.model.PokeResponse
 import com.example.pokedex.list.data.PokeListService
+import com.example.pokedex.list.presentation.ui.PokeListUiState
+import com.example.pokedex.list.presentation.ui.PokeUiData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,23 +23,38 @@ class PokeListViewModel(
     private val pokeListService: PokeListService
 ) : ViewModel() {
 
-    private val getPokemonList = MutableStateFlow<List<PokeDto>>(emptyList())
-    val pokemonList: StateFlow<List<PokeDto>> = getPokemonList
+    private val getPokemonList = MutableStateFlow(PokeListUiState())
+    val pokemonList: StateFlow<PokeListUiState> = getPokemonList
 
     init {
         fetchPokemonList()
     }
 
     private fun fetchPokemonList() {
+        getPokemonList.value = PokeListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            val response = pokeListService.getPokemonList()
-            if (response.isSuccessful) {
-                val pokedex = response.body()?.results
-                if (pokedex != null) {
-                    getPokemonList.value = pokedex
+            try {
+                val response = pokeListService.getPokemonList()
+                if (response.isSuccessful) {
+                    val pokedex = response.body()?.results
+                    if (pokedex != null) {
+                       val pokeUiDataList = pokedex.map { pokeDto ->
+                            PokeUiData(
+                                id = pokeDto.id,
+                                name = pokeDto.name,
+                                image = pokeDto.frontFullDefault,
+                                sprites = pokeDto.sprites,
+                            )
+                        }
+                        getPokemonList.value = PokeListUiState(list = pokeUiDataList)
+                    }
+                } else {
+                    getPokemonList.value = PokeListUiState(isError = true)
+                    Log.d("PokeListViewModel", "Request Error :: ${response.errorBody()}")
                 }
-            } else {
-                Log.d("PokeListViewModel", "Request Error :: ${response.errorBody()}")
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                getPokemonList.value = PokeListUiState(isError = true)
             }
         }
     }

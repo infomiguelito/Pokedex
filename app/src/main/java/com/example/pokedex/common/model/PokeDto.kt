@@ -1,7 +1,5 @@
 package com.example.pokedex.common.model
 
-import kotlinx.coroutines.flow.MutableStateFlow
-
 
  data class PokeDto(
     val name: String,
