@@ -6,6 +6,7 @@ data class PokeListUiState(
     val list : List<PokeUiData> = emptyList(),
     val isLoading : Boolean = false,
     val isError : Boolean = false,
+    val errorMessage: String? = "something went wrong",
 )
 
 

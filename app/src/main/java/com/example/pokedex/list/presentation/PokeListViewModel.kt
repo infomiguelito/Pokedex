@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.pokedex.common.data.RetrofitClient
-import com.example.pokedex.common.model.PokeDto
-import com.example.pokedex.common.model.PokeResponse
 import com.example.pokedex.list.data.PokeListService
 import com.example.pokedex.list.presentation.ui.PokeListUiState
 import com.example.pokedex.list.presentation.ui.PokeUiData
@@ -15,9 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import java.net.UnknownHostException
 
 class PokeListViewModel(
     private val pokeListService: PokeListService
@@ -54,7 +50,14 @@ class PokeListViewModel(
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
-                getPokemonList.value = PokeListUiState(isError = true)
+                if (ex is UnknownHostException){
+                    getPokemonList.value = PokeListUiState(
+                        isError = true,
+                        errorMessage = "not internet connection")
+
+                } else {
+                    getPokemonList.value = PokeListUiState(isError = true)
+                }
             }
         }
     }
