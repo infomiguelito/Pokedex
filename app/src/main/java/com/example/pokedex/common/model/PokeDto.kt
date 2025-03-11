@@ -11,12 +11,6 @@ package com.example.pokedex.common.model
     val sprites: Sprites
 
 )  {
-    val id : String
-        get() = url?.split("/")?.dropLast(1)?.lastOrNull() ?: "0"
-
-    val frontFullDefault: String
-        get() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png"
-
 
 
     data class TypeSlot(val type: PokemonType)

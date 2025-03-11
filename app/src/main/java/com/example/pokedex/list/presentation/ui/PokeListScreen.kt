@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,7 +26,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -36,30 +40,59 @@ fun PokeListScreen(
     navController: NavHostController,
     viewModel: PokeListViewModel
 ) {
-
     val pokemonList by viewModel.pokemonList.collectAsState()
 
     PokeListContent(
-        pokemonList = pokemonList
+        pokemonList = pokemonList,
+        onRetry = { viewModel.fetchPokemonList() }
     ) { itemClicked ->
         navController.navigate(route = "pokeDetail/${itemClicked.id}")
-
     }
 }
 
 @Composable
 private fun PokeListContent(
     pokemonList: PokeListUiState,
+    onRetry: () -> Unit,
     onClick: (PokeUiData) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        PokeGrid(
-            pokemonList.list,
-            onCLick = onClick
-        )
+        when {
+            pokemonList.isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            pokemonList.isError -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = pokemonList.errorMessage ?: "Algo deu errado",
+                        style = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Center,
+                        color = Color.Red
+                    )
+                    Button(onClick = onRetry) {
+                        Text("Tentar novamente")
+                    }
+                }
+            }
+            else -> {
+                PokeGrid(
+                    pokemonList.list,
+                    onCLick = onClick
+                )
+            }
+        }
     }
 }
 

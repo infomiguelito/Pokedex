@@ -1,11 +1,11 @@
 package com.example.pokedex.list.presentation
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.pokedex.common.data.RetrofitClient
+import com.example.pokedex.common.model.PokeDto
 import com.example.pokedex.list.data.PokeListService
 import com.example.pokedex.list.presentation.ui.PokeListUiState
 import com.example.pokedex.list.presentation.ui.PokeUiData
@@ -26,37 +26,47 @@ class PokeListViewModel(
         fetchPokemonList()
     }
 
-    private fun fetchPokemonList() {
+    fun fetchPokemonList() {
         getPokemonList.value = PokeListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = pokeListService.getPokemonList()
                 if (response.isSuccessful) {
-                    val pokedex = response.body()?.results
-                    if (pokedex != null) {
-                       val pokeUiDataList = pokedex.map { pokeDto ->
+                    val pokeListResponse = response.body()
+                    if (pokeListResponse != null) {
+                        val pokeUiDataList = pokeListResponse.results.map { pokemon ->
                             PokeUiData(
-                                id = pokeDto.id,
-                                name = pokeDto.name,
-                                image = pokeDto.frontFullDefault,
-                                sprites = pokeDto.sprites,
+                                id = pokemon.id,
+                                name = pokemon.name,
+                                image = pokemon.image,
+                                sprites = PokeDto.Sprites(front_default = pokemon.image)
                             )
                         }
                         getPokemonList.value = PokeListUiState(list = pokeUiDataList)
+                    } else {
+                        getPokemonList.value = PokeListUiState(
+                            isError = true,
+                            errorMessage = "Não foi possível carregar os Pokémon"
+                        )
                     }
                 } else {
-                    getPokemonList.value = PokeListUiState(isError = true)
-                    Log.d("PokeListViewModel", "Request Error :: ${response.errorBody()}")
+                    getPokemonList.value = PokeListUiState(
+                        isError = true,
+                        errorMessage = "Erro ao carregar os Pokémon. Tente novamente."
+                    )
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
-                if (ex is UnknownHostException){
+                if (ex is UnknownHostException) {
                     getPokemonList.value = PokeListUiState(
                         isError = true,
-                        errorMessage = "not internet connection")
-
+                        errorMessage = "Sem conexão com a internet"
+                    )
                 } else {
-                    getPokemonList.value = PokeListUiState(isError = true)
+                    getPokemonList.value = PokeListUiState(
+                        isError = true,
+                        errorMessage = "Erro ao processar dados: ${ex.message}"
+                    )
                 }
             }
         }
