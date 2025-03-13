@@ -51,7 +51,7 @@ import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
 
-    private val listViewModel by viewModels<PokeListViewModel> {PokeListViewModel.Factory}
+    private val listViewModel by viewModels<PokeListViewModel> {PokeListViewModel.factory}
     private val detailViewModel by viewModels<PokeDetailViewModel> {PokeDetailViewModel.Factory}
 
     override fun onCreate(savedInstanceState: Bundle?) {

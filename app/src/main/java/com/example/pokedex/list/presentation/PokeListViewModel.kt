@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.pokedex.common.data.RetrofitClient
 import com.example.pokedex.common.model.PokeDto
+import com.example.pokedex.list.data.PokeListRepository
 import com.example.pokedex.list.data.PokeListService
 import com.example.pokedex.list.presentation.ui.PokeListUiState
 import com.example.pokedex.list.presentation.ui.PokeUiData
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 import java.net.UnknownHostException
 
 class PokeListViewModel(
-    private val pokeListService: PokeListService
+    private val repository: PokeListRepository
 ) : ViewModel() {
 
     private val getPokemonList = MutableStateFlow(PokeListUiState())
@@ -29,57 +30,54 @@ class PokeListViewModel(
     fun fetchPokemonList() {
         getPokemonList.value = PokeListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = pokeListService.getPokemonList()
-                if (response.isSuccessful) {
-                    val pokeListResponse = response.body()
-                    if (pokeListResponse != null) {
-                        val pokeUiDataList = pokeListResponse.results.map { pokemon ->
-                            PokeUiData(
-                                id = pokemon.id,
-                                name = pokemon.name,
-                                image = pokemon.image,
-                                sprites = PokeDto.Sprites(front_default = pokemon.image)
-                            )
-                        }
-                        getPokemonList.value = PokeListUiState(list = pokeUiDataList)
-                    } else {
-                        getPokemonList.value = PokeListUiState(
-                            isError = true,
-                            errorMessage = "Não foi possível carregar os Pokémon"
+            val result = repository.getPokeList()
+            if (result.isSuccess) {
+                val pokeListResponse = result.getOrNull()
+                if (pokeListResponse != null) {
+                    val pokeUiDataList = pokeListResponse.results.map { pokemon ->
+                        PokeUiData(
+                            id = pokemon.id,
+                            name = pokemon.name,
+                            image = pokemon.image,
+                            sprites = PokeDto.Sprites(front_default = pokemon.image)
                         )
                     }
+                    getPokemonList.value = PokeListUiState(list = pokeUiDataList)
                 } else {
+                    getPokemonList.value = PokeListUiState(
+                        isError = true,
+                        errorMessage = "Não foi possível carregar os Pokémon"
+                    )
+                }
+            } else {
+                val ex = result.exceptionOrNull()
+                if (ex is UnknownHostException) {
                     getPokemonList.value = PokeListUiState(
                         isError = true,
                         errorMessage = "Erro ao carregar os Pokémon. Tente novamente."
                     )
-                }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-                if (ex is UnknownHostException) {
-                    getPokemonList.value = PokeListUiState(
-                        isError = true,
-                        errorMessage = "Sem conexão com a internet"
-                    )
                 } else {
                     getPokemonList.value = PokeListUiState(
                         isError = true,
-                        errorMessage = "Erro ao processar dados: ${ex.message}"
+                        errorMessage = "Erro ao processar dados: ${ex?.message}"
                     )
                 }
+                getPokemonList.value = PokeListUiState(
+                    isError = true,
+                    errorMessage = "Sem conexão com a internet"
+                )
             }
         }
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        val factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val listService =
                     RetrofitClient.retrofitInstance.create(PokeListService::class.java)
                 return PokeListViewModel(
-                    listService
+                    repository = PokeListRepository(listService)
                 ) as T
             }
         }

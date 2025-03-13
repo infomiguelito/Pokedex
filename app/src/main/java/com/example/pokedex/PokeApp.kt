@@ -18,7 +18,7 @@ fun PokeApp(
     detailViewModel: PokeDetailViewModel
 ) {
     val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = "pokeList") {
+        NavHost(navController, "pokeList") {
             composable(route = "pokeList") {
                 PokeListScreen(navController, listViewModel)
             }
