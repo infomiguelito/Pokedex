@@ -1,4 +1,4 @@
-package com.example.pokedex.list.data
+package com.example.pokedex.list.data.remote
 
 import com.example.pokedex.common.model.PokeListResponse
 import retrofit2.Response

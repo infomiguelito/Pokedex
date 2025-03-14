@@ -2,12 +2,14 @@ package com.example.pokedex.list.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.pokedex.PokedexApplication
 import com.example.pokedex.common.data.RetrofitClient
 import com.example.pokedex.common.model.PokeDto
 import com.example.pokedex.list.data.PokeListRepository
-import com.example.pokedex.list.data.PokeListService
+import com.example.pokedex.list.data.remote.PokeListService
 import com.example.pokedex.list.presentation.ui.PokeListUiState
 import com.example.pokedex.list.presentation.ui.PokeUiData
 import kotlinx.coroutines.Dispatchers
@@ -76,8 +78,9 @@ class PokeListViewModel(
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val listService =
                     RetrofitClient.retrofitInstance.create(PokeListService::class.java)
+                val application = checkNotNull(extras[APPLICATION_KEY])
                 return PokeListViewModel(
-                    repository = PokeListRepository(listService)
+                    repository = (application as PokedexApplication).repository
                 ) as T
             }
         }
