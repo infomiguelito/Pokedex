@@ -2,9 +2,9 @@ package com.example.pokedex.common.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.pokedex.common.model.PokeDto.Sprites
-import com.example.pokedex.common.model.PokeDto.StatSlot
-import com.example.pokedex.common.model.PokeDto.TypeSlot
+import com.example.pokedex.common.data.remote.model.PokeDto.Sprites
+import com.example.pokedex.common.data.remote.model.PokeDto.StatSlot
+import com.example.pokedex.common.data.remote.model.PokeDto.TypeSlot
 
 @Entity
 data class PokeEntity(

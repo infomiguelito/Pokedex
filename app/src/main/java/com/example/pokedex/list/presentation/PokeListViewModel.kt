@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.pokedex.PokedexApplication
-import com.example.pokedex.common.data.RetrofitClient
-import com.example.pokedex.common.model.PokeDto
+import com.example.pokedex.common.data.remote.RetrofitClient
+import com.example.pokedex.common.data.remote.model.PokeDto
 import com.example.pokedex.list.data.PokeListRepository
 import com.example.pokedex.list.data.remote.PokeListService
 import com.example.pokedex.list.presentation.ui.PokeListUiState

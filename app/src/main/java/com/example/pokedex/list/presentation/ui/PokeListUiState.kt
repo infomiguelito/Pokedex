@@ -1,6 +1,6 @@
 package com.example.pokedex.list.presentation.ui
 
-import com.example.pokedex.common.model.PokeDto.Sprites
+import com.example.pokedex.common.data.remote.model.PokeDto.Sprites
 
 data class PokeListUiState(
     val list : List<PokeUiData> = emptyList(),

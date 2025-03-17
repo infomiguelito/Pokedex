@@ -1,14 +1,14 @@
-package com.example.pokedex.common.model
+package com.example.pokedex.common.data.remote.model
 
 
  data class PokeDto(
-    val name: String,
-    val url: String?,
-    val height: Int,
-    val weight: Int,
-    val types: List<TypeSlot>,
-    val stats: List<StatSlot>,
-    val sprites: Sprites
+     val name: String,
+     val url: String?,
+     val height: Int,
+     val weight: Int,
+     val types: List<TypeSlot>,
+     val stats: List<StatSlot>,
+     val sprites: Sprites
 
 )  {
 

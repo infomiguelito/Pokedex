@@ -1,7 +1,7 @@
 package com.example.pokedex.list.data
 
 import android.accounts.NetworkErrorException
-import com.example.pokedex.common.model.PokeListResponse
+import com.example.pokedex.common.data.remote.model.PokeListResponse
 import com.example.pokedex.list.data.local.PokeListLocalDataSource
 import com.example.pokedex.list.data.remote.PokeListRemoteDataSource
 import com.example.pokedex.list.data.remote.PokeListService

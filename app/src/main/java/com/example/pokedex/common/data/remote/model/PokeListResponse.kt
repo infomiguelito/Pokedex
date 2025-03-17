@@ -1,4 +1,4 @@
-package com.example.pokedex.common.model
+package com.example.pokedex.common.data.remote.model
 
 data class PokeListResponse(
     val count: Int,

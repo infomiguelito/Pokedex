@@ -1,6 +1,6 @@
 package com.example.pokedex.list.data.remote
 
-import com.example.pokedex.common.model.PokeListResponse
+import com.example.pokedex.common.data.remote.model.PokeListResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
