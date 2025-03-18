@@ -36,7 +36,7 @@ class PokeListViewModel(
             if (result.isSuccess) {
                 val pokeListResponse = result.getOrNull()
                 if (pokeListResponse != null) {
-                    val pokeUiDataList = pokeListResponse.results.map { pokemon ->
+                    val pokeUiDataList = pokeListResponse.map { pokemon ->
                         PokeUiData(
                             id = pokemon.id,
                             name = pokemon.name,
