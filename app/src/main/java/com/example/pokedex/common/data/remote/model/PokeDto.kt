@@ -13,7 +13,9 @@ package com.example.pokedex.common.data.remote.model
 )  {
 
 
-    data class TypeSlot(val type: PokemonType)
+
+
+     data class TypeSlot(val type: PokemonType)
     data class PokemonType(val name: String)
 
     data class StatSlot(val base_stat: Int, val stat: Stat)

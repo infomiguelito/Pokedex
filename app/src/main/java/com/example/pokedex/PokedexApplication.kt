@@ -8,6 +8,10 @@ import com.example.pokedex.list.data.PokeListRepository
 import com.example.pokedex.list.data.local.PokeListLocalDataSource
 import com.example.pokedex.list.data.remote.PokeListRemoteDataSource
 import com.example.pokedex.list.data.remote.PokeListService
+import com.example.pokedex.detail.data.PokeDetailRepository
+import com.example.pokedex.detail.data.local.PokeDetailLocalDataSource
+import com.example.pokedex.detail.data.remote.PokeDetailRemoteDataSource
+import com.example.pokedex.detail.data.remote.PokeDetailService
 
 class PokedexApplication : Application(){
 
@@ -35,6 +39,13 @@ class PokedexApplication : Application(){
             local = localDataSource,
             remote = remoteDataSource
         )
+    }
+
+    val detailRepository: PokeDetailRepository by lazy {
+        val detailService = RetrofitClient.retrofitInstance.create(PokeDetailService::class.java)
+        val localDataSource = PokeDetailLocalDataSource(db.getPokeDao())
+        val remoteDataSource = PokeDetailRemoteDataSource(detailService)
+        PokeDetailRepository(localDataSource, remoteDataSource)
     }
 
 }

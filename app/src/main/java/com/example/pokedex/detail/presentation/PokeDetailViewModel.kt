@@ -1,56 +1,61 @@
 package com.example.pokedex.detail.presentation
 
-import android.util.Log
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.pokedex.common.data.remote.RetrofitClient
+import com.example.pokedex.PokedexApplication
 import com.example.pokedex.common.data.remote.model.PokeDto
-import com.example.pokedex.detail.data.PokeDetailService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import com.example.pokedex.common.data.remote.RetrofitClient
+import com.example.pokedex.detail.data.PokeDetailRepository
+import com.example.pokedex.detail.data.local.PokeDetailLocalDataSource
+import com.example.pokedex.detail.data.remote.PokeDetailRemoteDataSource
+import com.example.pokedex.detail.data.remote.PokeDetailService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class PokeDetailViewModel(
-    private val pokeDetailService: PokeDetailService
+    private val repository: PokeDetailRepository
 ) : ViewModel() {
 
-    private val _getPokemonDetail = MutableStateFlow<PokeDto?>(null)
-    val pokemonDetail: StateFlow<PokeDto?> = _getPokemonDetail
+    private val _uiState = MutableStateFlow<PokeDetailUiState>(PokeDetailUiState.Loading)
+    val uiState: StateFlow<PokeDetailUiState> = _uiState.asStateFlow()
 
-    fun fetchPokemonDetail(pokeId: String) {
-        if (_getPokemonDetail.value == null) {
-            viewModelScope.launch(Dispatchers.IO) {
-                val response = pokeDetailService.getPokemonDetails(pokeId)
-                if (response.isSuccessful) {
-                    _getPokemonDetail.value = response.body()
-                } else {
-                    Log.d("PokeDetailViewModel", "Request Error :: ${response.errorBody()}")
-                }
-            }
-        }
-    }
-
-    fun cleanPokeId() {
+    fun loadPokemonDetails(id: String) {
         viewModelScope.launch {
-            delay(1000)
-            _getPokemonDetail.value = null
+            _uiState.value = PokeDetailUiState.Loading
+            try {
+                val result = repository.getPokemonDetails(id)
+                result.onSuccess { pokemon ->
+                    if (pokemon != null) {
+                        _uiState.value = PokeDetailUiState.Success(pokemon)
+                    } else {
+                        _uiState.value = PokeDetailUiState.Error("Pokemon não encontrado")
+                    }
+                }.onFailure { error ->
+                    _uiState.value = PokeDetailUiState.Error(error.message ?: "Erro desconhecido")
+                }
+            } catch (e: Exception) {
+                _uiState.value = PokeDetailUiState.Error(e.message ?: "Erro desconhecido")
+            }
         }
     }
 
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-                val detailService =
-                    RetrofitClient.retrofitInstance.create(PokeDetailService::class.java)
-                return PokeDetailViewModel(
-                    detailService
-                ) as T
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val application = Application()
+                return PokeDetailViewModel((application as PokedexApplication).detailRepository) as T
             }
         }
     }
+}
+
+sealed class PokeDetailUiState {
+    object Loading : PokeDetailUiState()
+    data class Success(val pokemon: PokeDto) : PokeDetailUiState()
+    data class Error(val message: String) : PokeDetailUiState()
 }

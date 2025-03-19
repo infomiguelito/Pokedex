@@ -1,6 +1,5 @@
 package com.example.pokedex
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -18,18 +17,18 @@ fun PokeApp(
     detailViewModel: PokeDetailViewModel
 ) {
     val navController = rememberNavController()
-        NavHost(navController, "pokeList") {
-            composable(route = "pokeList") {
-                PokeListScreen(navController, listViewModel)
-            }
-            composable(
-                route = "pokeDetail" + "/{itemId}",
-                arguments = listOf(navArgument("itemId") {
-                    type = NavType.StringType
-                })
-            ) { backStackEntry ->
-                val pokeId = requireNotNull(backStackEntry.arguments?.getString("itemId"))
-                PokeDetailScreen(pokeId, navController, detailViewModel)
-            }
+    NavHost(navController, "pokeList") {
+        composable(route = "pokeList") {
+            PokeListScreen(navController, listViewModel)
+        }
+        composable(
+            route = "pokeDetail" + "/{itemId}",
+            arguments = listOf(navArgument("itemId") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val pokeId = requireNotNull(backStackEntry.arguments?.getString("itemId"))
+            PokeDetailScreen(pokeId, detailViewModel)
         }
     }
+}

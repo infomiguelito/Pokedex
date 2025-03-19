@@ -44,4 +44,7 @@ interface PokeDao {
 
     @Query("SELECT COUNT(*) FROM pokeentity WHERE types LIKE '%' || :type || '%'")
     suspend fun getPokemonCountByType(type: String): Int
+
+    @Query("SELECT * FROM PokeEntity WHERE name = :id")
+    fun getPokemonById(id: String): Flow<PokeEntity?>
 }
