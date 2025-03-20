@@ -1,5 +1,6 @@
 package com.example.pokedex.list.data.local
 
+import android.util.Log
 import com.example.pokedex.common.data.local.PokeDao
 import com.example.pokedex.common.data.local.PokeEntity
 import com.example.pokedex.common.data.model.Poke
@@ -23,5 +24,19 @@ class PokeListLocalDataSource(
         }
     }
 
-
+    suspend fun savePokemonList(pokemons: List<Poke>) {
+        Log.d("PokeListLocalDataSource", "Saving ${pokemons.size} Pokemon to database")
+        val entities = pokemons.map { pokemon ->
+            PokeEntity(
+                name = pokemon.name,
+                url = pokemon.url,
+                height = 0,
+                weight = 0,
+                types = emptyList(),
+                stats = emptyList(),
+                sprites = PokeDto.Sprites(front_default = pokemon.image)
+            )
+        }
+        dao.insertPokemonList(entities)
+    }
 }

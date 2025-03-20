@@ -22,13 +22,17 @@ fun PokeApp(
             PokeListScreen(navController, listViewModel)
         }
         composable(
-            route = "pokeDetail" + "/{itemId}",
+            route = "pokeDetail/{itemId}",
             arguments = listOf(navArgument("itemId") {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
             val pokeId = requireNotNull(backStackEntry.arguments?.getString("itemId"))
-            PokeDetailScreen(pokeId, navController.toString(), detailViewModel)
+            PokeDetailScreen(
+                pokemonId = pokeId,
+                viewModel = detailViewModel,
+                navController = navController
+            )
         }
     }
 }

@@ -33,41 +33,36 @@ class PokeListViewModel(
         getPokemonList.value = PokeListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getPokeList()
-            if (result.isSuccess) {
-                val pokeListResponse = result.getOrNull()
-                if (pokeListResponse != null) {
-                    val pokeUiDataList = pokeListResponse.map { pokemon ->
-                        PokeUiData(
-                            id = pokemon.id,
-                            name = pokemon.name,
-                            image = pokemon.image,
-                            sprites = PokeDto.Sprites(front_default = pokemon.image)
+            getPokemonList.value = when {
+                result.isSuccess -> {
+                    val pokeListResponse = result.getOrNull()
+                    if (pokeListResponse != null) {
+                        val pokeUiDataList = pokeListResponse.map { pokemon ->
+                            PokeUiData(
+                                id = pokemon.id,
+                                name = pokemon.name,
+                                image = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png",
+                                sprites = PokeDto.Sprites(front_default = pokemon.image)
+                            )
+                        }
+                        PokeListUiState(list = pokeUiDataList)
+                    } else {
+                        PokeListUiState(
+                            isError = true,
+                            errorMessage = "Não foi possível carregar os Pokémon"
                         )
                     }
-                    getPokemonList.value = PokeListUiState(list = pokeUiDataList)
-                } else {
-                    getPokemonList.value = PokeListUiState(
+                }
+                else -> {
+                    val ex = result.exceptionOrNull()
+                    PokeListUiState(
                         isError = true,
-                        errorMessage = "Não foi possível carregar os Pokémon"
+                        errorMessage = when (ex) {
+                            is UnknownHostException -> "Sem conexão com a internet"
+                            else -> "Erro ao processar dados: ${ex?.message}"
+                        }
                     )
                 }
-            } else {
-                val ex = result.exceptionOrNull()
-                if (ex is UnknownHostException) {
-                    getPokemonList.value = PokeListUiState(
-                        isError = true,
-                        errorMessage = "Erro ao carregar os Pokémon. Tente novamente."
-                    )
-                } else {
-                    getPokemonList.value = PokeListUiState(
-                        isError = true,
-                        errorMessage = "Erro ao processar dados: ${ex?.message}"
-                    )
-                }
-                getPokemonList.value = PokeListUiState(
-                    isError = true,
-                    errorMessage = "Sem conexão com a internet"
-                )
             }
         }
     }

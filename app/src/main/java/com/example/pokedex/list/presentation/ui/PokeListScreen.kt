@@ -106,7 +106,7 @@ private fun PokeCard(
             .fillMaxWidth()
             .height(180.dp)
             .clip(RoundedCornerShape(16.dp))
-            .clickable { },
+            .clickable { onCLick(pokeDto) },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(

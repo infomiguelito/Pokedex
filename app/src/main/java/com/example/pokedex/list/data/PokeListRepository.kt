@@ -1,6 +1,7 @@
 package com.example.pokedex.list.data
 
 import android.accounts.NetworkErrorException
+import android.util.Log
 import com.example.pokedex.common.data.model.Poke
 import com.example.pokedex.list.data.local.PokeListLocalDataSource
 import com.example.pokedex.list.data.remote.PokeListRemoteDataSource
@@ -12,24 +13,26 @@ class PokeListRepository(
 ) {
     suspend fun getPokeList(): Result<List<Poke>?> {
         return try {
+            Log.d("PokeListRepository", "Fetching Pokemon list")
             val localData = local.getPokemon().first()
             
             if (localData.isNotEmpty()) {
+                Log.d("PokeListRepository", "Returning ${localData.size} Pokemon from local database")
                 updateFromRemote()
-                return Result.success(localData)
-            }
-            val remoteResult = remote.getPokeList()
-            if (remoteResult.isSuccess) {
-                remoteResult.getOrNull()?.let { pokemons ->
-                    Result.success(pokemons)
-                } ?: Result.failure(NetworkErrorException("Response body is null"))
+                Result.success(localData)
             } else {
-                Result.failure(NetworkErrorException(remoteResult.exceptionOrNull()?.message))
+                Log.d("PokeListRepository", "Local database empty, fetching from remote")
+                val remoteResult = remote.getPokeList()
+                remoteResult.onSuccess { pokemons ->
+                    pokemons?.let { local.savePokemonList(it) }
+                }
+                remoteResult
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            Log.e("PokeListRepository", "Error fetching Pokemon list", ex)
             val localData = local.getPokemon().first()
             if (localData.isNotEmpty()) {
+                Log.d("PokeListRepository", "Returning ${localData.size} Pokemon from local database after error")
                 Result.success(localData)
             } else {
                 Result.failure(ex)
@@ -39,13 +42,18 @@ class PokeListRepository(
 
     private suspend fun updateFromRemote() {
         try {
+            Log.d("PokeListRepository", "Updating from remote")
             val remoteResult = remote.getPokeList()
-            if (remoteResult.isSuccess) {
-                remoteResult.getOrNull()?.let { pokemons ->
+            remoteResult.onSuccess { pokemons ->
+                pokemons?.let {
+                    Log.d("PokeListRepository", "Saving ${it.size} Pokemon to local database")
+                    local.savePokemonList(it)
                 }
+            }.onFailure { error ->
+                Log.e("PokeListRepository", "Error updating from remote", error)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            Log.e("PokeListRepository", "Exception updating from remote", ex)
         }
     }
 }
