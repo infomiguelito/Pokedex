@@ -45,7 +45,7 @@ class PokedexApplication : Application(){
         val detailService = RetrofitClient.retrofitInstance.create(PokeDetailService::class.java)
         val localDataSource = PokeDetailLocalDataSource(db.getPokeDao())
         val remoteDataSource = PokeDetailRemoteDataSource(detailService)
-        PokeDetailRepository(localDataSource, remoteDataSource)
+        PokeDetailRepository(localDataSource,  remoteDataSource)
     }
 
 }
