@@ -13,6 +13,7 @@ class PokeListLocalDataSource(
 ) {
     fun getPokemon(): Flow<List<Poke>> {
         return dao.getAllPokemons().map { entities ->
+            Log.d("PokeListLocalDataSource", "Retrieved ${entities.size} Pokemon from database")
             entities.map { entity ->
                 Poke(
                     name = entity.name,
@@ -25,18 +26,28 @@ class PokeListLocalDataSource(
     }
 
     suspend fun savePokemonList(pokemons: List<Poke>) {
-        Log.d("PokeListLocalDataSource", "Saving ${pokemons.size} Pokemon to database")
-        val entities = pokemons.map { pokemon ->
-            PokeEntity(
-                name = pokemon.name,
-                url = pokemon.url,
-                height = 0,
-                weight = 0,
-                types = emptyList(),
-                stats = emptyList(),
-                sprites = PokeDto.Sprites(front_default = pokemon.image)
-            )
+        Log.d("PokeListLocalDataSource", "Attempting to save ${pokemons.size} Pokemon to database")
+        
+        // Verifica se já existem Pokémon no banco
+        val currentCount = dao.getPokemonCount()
+        Log.d("PokeListLocalDataSource", "Current Pokemon count in database: $currentCount")
+        
+        if (currentCount < pokemons.size) {
+            val entities = pokemons.map { pokemon ->
+                PokeEntity(
+                    name = pokemon.name,
+                    url = pokemon.url,
+                    height = 0,
+                    weight = 0,
+                    types = emptyList(),
+                    stats = emptyList(),
+                    sprites = PokeDto.Sprites(front_default = pokemon.image)
+                )
+            }
+            dao.insertPokemonList(entities)
+            Log.d("PokeListLocalDataSource", "Successfully saved ${entities.size} Pokemon to database")
+        } else {
+            Log.d("PokeListLocalDataSource", "Skipping save as database already has more Pokemon")
         }
-        dao.insertPokemonList(entities)
     }
 }

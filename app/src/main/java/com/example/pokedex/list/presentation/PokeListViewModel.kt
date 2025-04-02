@@ -45,6 +45,9 @@ class PokeListViewModel(
                                 sprites = PokeDto.Sprites(front_default = pokemon.image)
                             )
                         }
+                        viewModelScope.launch(Dispatchers.IO) {
+                            repository.updateFromRemote()
+                        }
                         PokeListUiState(list = pokeUiDataList)
                     } else {
                         PokeListUiState(
